@@ -49,43 +49,18 @@ def fazer_requisicao(endpoint, method="GET", params=None, data=None):
     
 st.title("APS3")
 
-
 #Bikes
-st.sidebar.header("🔍 Bikes")
-marca = st.sidebar.text_input("Marca")
-modelo = st.sidebar.text_input("Modelo")
-cidade = st.sidebar.text_input("Cidade")
-
 def buscar_bikes():
-    params = {
-        'marca': marca,         
-        'modelo': modelo,         
-        'cidade': cidade,
-    }
-
-    # Fazendo a requisição GET para o backend
-    data = fazer_requisicao("bikes", method="GET", params=params)
-    # Chama a função 'fazer_requisicao' para enviar uma requisição GET ao endpoint '/bikes' do backend,
-    # com os parâmetros (filtros) fornecidos pelo usuário.
-
-    # Se houver dados na resposta, exibir os imóveis
-    if data:
-        df_imoveis = pd.DataFrame(data['bikes'])
+    data = fazer_requisicao("bikes", method="GET")
+    if data['bikes']:
+        df_bikes = pd.DataFrame(data['bikes'])
         
-        # Converte os imóveis em um DataFrame do Pandas para exibição em tabela.
         st.write("### 🏠 Resultados da Pesquisa")
-        st.dataframe(df_imoveis) 
-        # Exibe os resultados da pesquisa em uma tabela interativa no frontend do Streamlit.
-    elif data:
-        st.write("❌ Nenhum imóvel encontrado para os filtros selecionados.")
-        # Se não houver resultados (mas houver dados válidos na resposta), exibe uma mensagem dizendo que 
-        # nenhum imóvel foi encontrado.
+        st.dataframe(df_bikes) 
+    else:
+        st.write("❌ Nenhuma Bike encontrada")
 
-if st.sidebar.button("🔍 Buscar Bikes"):
-    buscar_bikes()
-
-
-def criar_bikes():
+def criar_bikes(marca,modelo,cidade):
     datas = {
         'marca': marca,         
         'modelo': modelo,         
@@ -95,51 +70,72 @@ def criar_bikes():
     try:
         st.write(data['mensagem'])
     except:
-        st.write(data["erro"])
+        st._main.write(data["erro"])
 
-
-if st.sidebar.button("🔍 Criar Bikes"):
-    criar_bikes()
-
-id_bike = st.sidebar.text_input("Id")
-
-def atualizar_bike():
+def atualizar_bike(marca,modelo,cidade,id_bike):
     dados = {
         'marca': marca,         
         'modelo': modelo,         
         'cidade': cidade,
     }
-    st.write(data['mensagem'])
-    data = fazer_requisicao(f"bikes/{id}", method="PUT", data=dados)
+    data = fazer_requisicao(f"bikes/{id_bike}", method="PUT", data=dados)
+    if data:
+        st.write(data['mensagem'])
 
-if st.sidebar.button("🔍 Atualizar bike"):
-    atualizar_bike()
+def deletar_bike(id_bike):
+    data = fazer_requisicao(f"bikes/{id_bike}", method="DELETE")
+    if data:
+        st.write(data['mensagem'])   
 
-def deletar_bike():
-    params = {
-    }
-    data = fazer_requisicao(f"bikes/{id}", method="DELETE", params=params)
-    st.write(data['mensagem'])    
-if st.sidebar.button("🔍 Deletar bike"):
-    deletar_bike()
-
-def buscar_bikes_id():
-
-    data = fazer_requisicao(f"bikes/{id}", method="GET")
+def buscar_bikes_id(id_bike):
+    data = fazer_requisicao(f"bikes/{id_bike}", method="GET")
 
     if data:
-        df_imoveis = pd.DataFrame(data)
+        df_bike = pd.DataFrame(data)
         
         st.write("### 🏠 Resultados da Pesquisa")
-        st.dataframe(df_imoveis) 
+        st.dataframe(df_bike) 
     elif data:
-        st.write("❌ Nenhum imóvel encontrado para os filtros selecionados.")
+        st.write("❌ Nenhuma Bike encontrada")
 
-if st.sidebar.button("🔍 Buscar bikes"):
-    buscar_bikes_id()
+
+#inputs bike
+df_bike = ''
+st.sidebar.header("Bikes")
+
+if st.sidebar.button("Buscar Todas As Bikes"):
+    buscar_bikes()
+
+with st.sidebar.popover("Criar Bike"):
+    marca = st.text_input('Marca', key='POST_marca')
+    modelo = st.text_input("Modelo", key='POST_modelo')
+    cidade = st.text_input("Cidade", key='POST_cidade')
+    enviar = st.button("Enviar", key="POST_envio_bike")
+if enviar:
+    criar_bikes(marca,modelo,cidade)
+
+with st.sidebar.popover("Atualizar Bike"):
+    marca = st.text_input('marca', key='PUT_marca')
+    modelo = st.text_input("modelo", key='PUT_modelo')
+    cidade = st.text_input("cidade", key='PUT_cidade')
+    id_bike = st.text_input("ID", key='PUT_ID')
+    enviar = st.button("Enviar",key="PUT_envio_bike")
+if enviar:
+    atualizar_bike(marca,modelo,cidade,id_bike)
+
+with st.sidebar.popover("Deletar Bike"):
+    id_bike = st.text_input("ID", key='DELETE_ID')
+    enviar = st.button("Enviar",key="DELETE_envio_bike")
+if enviar:    
+    deletar_bike(id_bike)
+
+with st.sidebar.popover("Achar Bike"):
+    id_bike = st.text_input("ID", key='GET_ID')
+    enviar = st.button("Enviar",key="GET_envio_bike")
+if enviar:
+    buscar_bikes_id(id_bike)
 
 #usuarios
-
 st.sidebar.header("🔍 Usuarios")
 nome = st.sidebar.text_input("Nome")
 cpf = st.sidebar.text_input("cpf")
