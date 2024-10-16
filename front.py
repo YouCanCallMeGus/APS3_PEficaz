@@ -89,9 +89,8 @@ def deletar_bike(id_bike):
 
 def buscar_bikes_id(id_bike):
     data = fazer_requisicao(f"bikes/{id_bike}", method="GET")
-
     if data:
-        df_bike = pd.DataFrame(data)
+        df_bike = pd.DataFrame(data['bike'])
         
         st.write("### 🏠 Resultados da Pesquisa")
         st.dataframe(df_bike) 
@@ -136,49 +135,25 @@ if enviar:
     buscar_bikes_id(id_bike)
 
 #usuarios
-st.sidebar.header("🔍 Usuarios")
-nome = st.sidebar.text_input("Nome")
-cpf = st.sidebar.text_input("cpf")
-nascimento = st.sidebar.text_input("Nascimento")
-
-def Criar_usuario():
+def Criar_usuario(nome,cpf,nascimento):
     dados = {
         'nome': nome,         
         'cpf': cpf,         
         'data_de_nascimento': nascimento,
     }
     requisicao = fazer_requisicao("usuarios", method="POST", data=dados)
-    try:
-        st.write(requisicao['mensagem'])
-    except:
-        st.write({requisicao['id']})
+    st.write(requisicao['mensagem'])
+
 
 def buscar_usuarios():
-    # Fazendo a requisição GET para o backend
     data = fazer_requisicao("usuarios", method="GET")
-    # Chama a função 'fazer_requisicao' para enviar uma requisição GET ao endpoint '/bikes' do backend,
-    # com os parâmetros (filtros) fornecidos pelo usuário.
-
-    # Se houver dados na resposta, exibir os imóveis
     if data:
-        df_imoveis = pd.DataFrame(data['usuarios'])
+        df_usuarios = pd.DataFrame(data['usuarios'])
         
-        # Converte os imóveis em um DataFrame do Pandas para exibição em tabela.
         st.write("### 🏠 Resultados da Pesquisa")
-        st.dataframe(df_imoveis) 
-        # Exibe os resultados da pesquisa em uma tabela interativa no frontend do Streamlit.
+        st.dataframe(df_usuarios) 
     elif data:
         st.write("❌ Nenhum Usuário encontrado")
-        # Se não houver resultados (mas houver dados válidos na resposta), exibe uma mensagem dizendo que 
-        # nenhum imóvel foi encontrado.
-
-if st.sidebar.button("🔍 Buscar usuarios"):
-    buscar_usuarios()
-
-if st.sidebar.button("🔍 Criar Usuario"):
-    Criar_usuario()
-
-id = st.sidebar.text_input("ID")
 
 def atualizar_usuarios():
     datas = {
@@ -189,9 +164,6 @@ def atualizar_usuarios():
 
     data = fazer_requisicao(f"usuarios/{id}", method="PUT", data=datas)
     st.write(data['mensagem'])
-
-if st.sidebar.button("🔍 Atualizar usuarios"):
-    atualizar_usuarios()
 
 def buscar_usuarios_id():
     params = {
@@ -210,12 +182,37 @@ def buscar_usuarios_id():
     elif data:
         st.write("❌ Nenhum imóvel encontrado para os filtros selecionados.")
 
-if st.sidebar.button("🔍 Buscar usuarios por id"):
-    buscar_usuarios_id()
-
 def deletar_usuario():
     params = {
     }
     data = fazer_requisicao(f"usuarios/{id}", method="DELETE", params=params)
+
+#inputs usuarios
+st.sidebar.header("Usuarios")
+
+if st.sidebar.button("🔍 Buscar usuarios"):
+    buscar_usuarios()
+
+with st.sidebar.popover("Criar Usuário"):
+    nome = st.text_input('nome', key='POST_nome')
+    cpf = st.text_input("cpf", key='POST_cpf')
+    nascimento = st.text_input("data de nascimento", key='POST_nascimento')
+    enviar = st.button("Enviar", key="POST_envio_user")
+if enviar:
+    Criar_usuario(nome,cpf,nascimento)
+
+if st.sidebar.button("🔍 Criar Usuario"):
+    Criar_usuario()
+
+id = st.sidebar.text_input("ID")
+
+
+if st.sidebar.button("🔍 Atualizar usuarios"):
+    atualizar_usuarios()
+
+if st.sidebar.button("🔍 Buscar usuarios por id"):
+    buscar_usuarios_id()
+
+
 if st.sidebar.button("🔍 Deletar usuarios"):
     deletar_usuario()
