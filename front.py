@@ -55,7 +55,7 @@ def buscar_bikes():
     if data['bikes']:
         df_bikes = pd.DataFrame(data['bikes'])
         
-        st.write("### 🏠 Resultados da Pesquisa")
+        st.write("### 🚲 Resultados da Pesquisa")
         st.dataframe(df_bikes) 
     else:
         st.write("❌ Nenhuma Bike encontrada")
@@ -70,7 +70,7 @@ def criar_bikes(marca,modelo,cidade):
     try:
         st.write(data['mensagem'])
     except:
-        st._main.write(data["erro"])
+        st._main.write(data)
 
 def atualizar_bike(marca,modelo,cidade,id_bike):
     dados = {
@@ -91,21 +91,19 @@ def buscar_bikes_id(id_bike):
     data = fazer_requisicao(f"bikes/{id_bike}", method="GET")
     if data:
         df_bike = pd.DataFrame(data['bike'])
-        
-        st.write("### 🏠 Resultados da Pesquisa")
+        st.write("### 🚲 Resultados da Pesquisa")
         st.dataframe(df_bike) 
     elif data:
         st.write("❌ Nenhuma Bike encontrada")
 
 
 #inputs bike
-df_bike = ''
 st.sidebar.header("Bikes")
 
-if st.sidebar.button("Buscar Todas As Bikes"):
+if st.sidebar.button("🔍 Buscar Todas As Bikes"):
     buscar_bikes()
 
-with st.sidebar.popover("Criar Bike"):
+with st.sidebar.popover("🚲 Criar Bike"):
     marca = st.text_input('Marca', key='POST_marca')
     modelo = st.text_input("Modelo", key='POST_modelo')
     cidade = st.text_input("Cidade", key='POST_cidade')
@@ -113,22 +111,22 @@ with st.sidebar.popover("Criar Bike"):
 if enviar:
     criar_bikes(marca,modelo,cidade)
 
-with st.sidebar.popover("Atualizar Bike"):
-    marca = st.text_input('marca', key='PUT_marca')
-    modelo = st.text_input("modelo", key='PUT_modelo')
-    cidade = st.text_input("cidade", key='PUT_cidade')
+with st.sidebar.popover("🔁 Atualizar Bike"):
+    marca = st.text_input('Marca', key='PUT_marca')
+    modelo = st.text_input("Modelo", key='PUT_modelo')
+    cidade = st.text_input("Cidade", key='PUT_cidade')
     id_bike = st.text_input("ID", key='PUT_ID')
     enviar = st.button("Enviar",key="PUT_envio_bike")
 if enviar:
     atualizar_bike(marca,modelo,cidade,id_bike)
 
-with st.sidebar.popover("Deletar Bike"):
+with st.sidebar.popover("❌ Deletar Bike"):
     id_bike = st.text_input("ID", key='DELETE_ID')
     enviar = st.button("Enviar",key="DELETE_envio_bike")
 if enviar:    
     deletar_bike(id_bike)
 
-with st.sidebar.popover("Achar Bike"):
+with st.sidebar.popover("📌 Achar Bike"):
     id_bike = st.text_input("ID", key='GET_ID')
     enviar = st.button("Enviar",key="GET_envio_bike")
 if enviar:
@@ -144,48 +142,39 @@ def Criar_usuario(nome,cpf,nascimento):
     requisicao = fazer_requisicao("usuarios", method="POST", data=dados)
     st.write(requisicao['mensagem'])
 
-
 def buscar_usuarios():
     data = fazer_requisicao("usuarios", method="GET")
     if data:
         df_usuarios = pd.DataFrame(data['usuarios'])
         
-        st.write("### 🏠 Resultados da Pesquisa")
+        st.write("### 🚲 Resultados da Pesquisa")
         st.dataframe(df_usuarios) 
     elif data:
         st.write("❌ Nenhum Usuário encontrado")
 
-def atualizar_usuarios():
+def atualizar_usuarios(nome,cpf,nascimento,id_usuario):
     datas = {
         'nome': nome,         
         'cpf': cpf,         
         'data_de_nascimento': nascimento,
     }
 
-    data = fazer_requisicao(f"usuarios/{id}", method="PUT", data=datas)
+    data = fazer_requisicao(f"usuarios/{id_usuario}", method="PUT", data=datas)
     st.write(data['mensagem'])
 
-def buscar_usuarios_id():
-    params = {
-        'nome': nome,         
-        'cpf': cpf,         
-        'data_de_nascimento': nascimento,
-    }
-
-    data = fazer_requisicao(f"usuarios/{id}", method="GET", params=params)
-
+def buscar_usuarios_id(id_users):
+    data = fazer_requisicao(f"usuarios/{id_users}", method="GET")
     if data:
         df_imoveis = pd.DataFrame(data)
-        
-        st.write("### 🏠 Resultados da Pesquisa")
+        st.write("### 🚲 Resultados da Pesquisa")
         st.dataframe(df_imoveis) 
     elif data:
         st.write("❌ Nenhum imóvel encontrado para os filtros selecionados.")
 
-def deletar_usuario():
-    params = {
-    }
-    data = fazer_requisicao(f"usuarios/{id}", method="DELETE", params=params)
+def deletar_usuario(id_user):
+    data = fazer_requisicao(f"usuarios/{id_user}", method="DELETE")
+    if data:
+        st.write(data['mensagem'])  
 
 #inputs usuarios
 st.sidebar.header("Usuarios")
@@ -193,26 +182,31 @@ st.sidebar.header("Usuarios")
 if st.sidebar.button("🔍 Buscar usuarios"):
     buscar_usuarios()
 
-with st.sidebar.popover("Criar Usuário"):
-    nome = st.text_input('nome', key='POST_nome')
-    cpf = st.text_input("cpf", key='POST_cpf')
-    nascimento = st.text_input("data de nascimento", key='POST_nascimento')
-    enviar = st.button("Enviar", key="POST_envio_user")
+with st.sidebar.popover("🧕 Criar Usuário"):
+    nome = st.text_input('Nome', key='POST_nome')
+    cpf = st.text_input("Cpf", key='POST_cpf')
+    nascimento = st.text_input("Data de nascimento", key='POST_nascimento')
+    enviar = st.button("Enviar", key="POST_envio_usuario")
 if enviar:
     Criar_usuario(nome,cpf,nascimento)
 
-if st.sidebar.button("🔍 Criar Usuario"):
-    Criar_usuario()
+with st.sidebar.popover("🔁 Atualizar Usuário"):
+    nome = st.text_input('Nome', key='PUT_nome')
+    cpf = st.text_input("Cpf", key='PUT_cpf')
+    nascimento = st.text_input("Data de nascimento", key='PUT_nascimento')
+    id_usuario = st.text_input("ID", key='PUT_IDs')
+    enviar = st.button("Enviar", key="PUT_envio_usuario")
+if enviar:
+    atualizar_usuarios(nome,cpf,nascimento,id_usuario)
 
-id = st.sidebar.text_input("ID")
+with st.sidebar.popover("❌ Deletar usuario"):
+    id_user = st.text_input("ID", key='DELETE_IDs')
+    enviar = st.button("Enviar",key="DELETE_envio_usuario")
+if enviar:    
+    deletar_usuario(id_user)
 
-
-if st.sidebar.button("🔍 Atualizar usuarios"):
-    atualizar_usuarios()
-
-if st.sidebar.button("🔍 Buscar usuarios por id"):
-    buscar_usuarios_id()
-
-
-if st.sidebar.button("🔍 Deletar usuarios"):
-    deletar_usuario()
+with st.sidebar.popover("📌 Achar usuario"):
+    id_users = st.text_input("ID", key='GET_IDs')
+    enviar = st.button("Enviar",key="GET_envio_usuario")
+if enviar:
+    buscar_usuarios_id(id_users)
