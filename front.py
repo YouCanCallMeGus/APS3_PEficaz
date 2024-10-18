@@ -4,7 +4,7 @@ import pandas as pd
 
 certo = "Tudo certo"
 
-BASE_URL = "http://127.0.0.1:5000"
+BASE_URL = "https://aps-3-flask-rest-mongo-backend.onrender.com"
 
 def fazer_requisicao(endpoint, method="GET", params=None, data=None):
     url = f"{BASE_URL}/{endpoint}"
@@ -31,6 +31,9 @@ def fazer_requisicao(endpoint, method="GET", params=None, data=None):
         elif response.status_code == 201:
             return response.json()  
               
+        elif response.status_code == 400:
+            st.warning("⚠️ Ops, parece que algo deu errado com seu formulário...")      
+
         elif response.status_code == 404:
             st.warning("⚠️ Recurso não encontrado.")
 
@@ -67,10 +70,8 @@ def criar_bikes(marca,modelo,cidade):
         'cidade': cidade,
     }
     data = fazer_requisicao("bikes", method="POST", data=datas)
-    try:
+    if data:
         st.write(data['mensagem'])
-    except:
-        st._main.write(data)
 
 def atualizar_bike(marca,modelo,cidade,id_bike):
     dados = {
@@ -93,7 +94,7 @@ def buscar_bikes_id(id_bike):
         df_bike = pd.DataFrame(data['bike'])
         st.write("### 🚲 Resultados da Pesquisa")
         st.dataframe(df_bike) 
-    elif data:
+    else:
         st.write("❌ Nenhuma Bike encontrada")
 
 
@@ -140,16 +141,16 @@ def Criar_usuario(nome,cpf,nascimento):
         'data_de_nascimento': nascimento,
     }
     requisicao = fazer_requisicao("usuarios", method="POST", data=dados)
-    st.write(requisicao['mensagem'])
+    if requisicao:
+        st.write(requisicao['mensagem'])
 
 def buscar_usuarios():
     data = fazer_requisicao("usuarios", method="GET")
-    if data:
+    if data['usuarios'] != []:
         df_usuarios = pd.DataFrame(data['usuarios'])
-        
         st.write("### 🚲 Resultados da Pesquisa")
         st.dataframe(df_usuarios) 
-    elif data:
+    else:
         st.write("❌ Nenhum Usuário encontrado")
 
 def atualizar_usuarios(nome,cpf,nascimento,id_usuario):
@@ -160,7 +161,8 @@ def atualizar_usuarios(nome,cpf,nascimento,id_usuario):
     }
 
     data = fazer_requisicao(f"usuarios/{id_usuario}", method="PUT", data=datas)
-    st.write(data['mensagem'])
+    if data:
+        st.write(data['mensagem'])
 
 def buscar_usuarios_id(id_users):
     data = fazer_requisicao(f"usuarios/{id_users}", method="GET")
@@ -168,8 +170,7 @@ def buscar_usuarios_id(id_users):
         df_imoveis = pd.DataFrame(data)
         st.write("### 🚲 Resultados da Pesquisa")
         st.dataframe(df_imoveis) 
-    elif data:
-        st.write("❌ Nenhum imóvel encontrado para os filtros selecionados.")
+
 
 def deletar_usuario(id_user):
     data = fazer_requisicao(f"usuarios/{id_user}", method="DELETE")
@@ -210,3 +211,46 @@ with st.sidebar.popover("📌 Achar usuario"):
     enviar = st.button("Enviar",key="GET_envio_usuario")
 if enviar:
     buscar_usuarios_id(id_users)
+
+
+#emprestimos
+def buscar_emprestimo():
+    data = fazer_requisicao("emprestimos", method="GET")
+    if data:
+        df_usuarios = pd.DataFrame(data['emprestimos'])
+        st.write("### Resultados da Pesquisa")
+        st.dataframe(df_usuarios) 
+    
+
+def cria_emprestimo(id_usuario, id_bikes):
+    dados = {
+        'id_usuario': id_usuario,         
+        'id_bikes': id_bikes     
+    }
+    requisicao = fazer_requisicao(f"/emprestimos/usuarios/{id_usuario}/bikes/{id_bikes}", method="POST", data=dados)
+    if requisicao:
+        st.write(requisicao['mensagem'])
+
+def deletar_emprestimo(id_emprestimo):
+    data = fazer_requisicao(f"emprestimos/{id_emprestimo}", method="DELETE")
+    if data:
+        st.write(data['mensagem']) 
+
+#inputs emprestimos
+st.sidebar.header("Empréstimo")
+
+if st.sidebar.button("🔍 Buscar empréstimo"):
+    buscar_emprestimo()
+
+with st.sidebar.popover("Criar Empréstimo"):
+    id_usuario = st.text_input('ID_user', key='POST_emprestimo')
+    id_bikes = st.text_input("ID_bikes", key='POST_emprestimos')
+    enviar = st.button("Enviar", key="POST_envio_emprestimo")
+if enviar:
+    cria_emprestimo(id_usuario, id_bikes)
+
+with st.sidebar.popover("❌ Deletar Empréstimo"):
+    id_emprestimo = st.text_input("ID Empréstimo", key='DELETE_ID_emprestimo')
+    enviar = st.button("Enviar",key="DELETE_envio_emprestimo")
+if enviar:    
+    deletar_emprestimo(id_emprestimo)
