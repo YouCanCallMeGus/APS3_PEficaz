@@ -90,7 +90,8 @@ def deletar_bike(id_bike):
 
 def buscar_bikes_id(id_bike):
     data = fazer_requisicao(f"bikes/{id_bike}", method="GET")
-    if data:
+
+    if data['bike']:
         df_bike = pd.DataFrame(data['bike'])
         st.write("### 🚲 Resultados da Pesquisa")
         st.dataframe(df_bike) 
